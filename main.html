@@ -1,16 +1,224 @@
-<!DOCTYPE html>
-
-<html>
-
+<!doctype html>
+<html lang="en">
 <head>
-	<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <title>Dog Adoption Application</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* Basic reset */
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 20px; background:#f7f8fa; color:#222; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 6px 18px rgba(20,20,40,0.06);
+    }
+
+    h1 { margin: 0 0 8px 0; font-size: 22px; }
+    p.subtitle { color: #666; margin-top: 0; margin-bottom: 18px; }
+
+    form { display: grid; gap: 12px; grid-template-columns: 1fr; }
+
+    .row { display:flex; gap:12px; align-items:center; }
+    label {
+      min-width: 180px;
+      display: inline-block;
+      font-weight: 600;
+    }
+    .field {
+      flex: 1;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cfd8e3;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    textarea { min-height: 80px; resize: vertical; }
+
+    .checkbox-row {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 0;
+    }
+
+    .actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top: 8px;
+    }
+
+    input[type="submit"]{
+      background:#e05050;
+      color:white;
+      border:none;
+      padding:10px 18px;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    input[type="submit"]:hover{ opacity:0.95; }
+
+    /* table-like panel showing specification (optional) */
+    .spec {
+      border:1px solid #e6e9ef;
+      background:#fbfbfd;
+      padding:12px;
+      border-radius:6px;
+      margin-top:18px;
+      color:#444;
+      font-size:13px;
+    }
+
+    .error { color: #b00020; font-weight:600; }
+    @media (min-width:700px){
+      form { grid-template-columns: 1fr; }
+      .row { gap:24px; }
+      label { min-width: 240px; }
+    }
+  </style>
 </head>
-
 <body>
-	<!-- the entire body must be written by student -->
-    <script type="text/javascript" src="./script.js">
-</script>
+  <div class="container">
+    <h1>Dog Adoption Application</h1>
+    <p class="subtitle">Please fill the form. Ensure the multi-select has at least 3 breeds selected before submitting.</p>
 
+    <form id="adoptForm" novalidate>
+      <!-- Name -->
+      <div class="row">
+        <label for="name">Name</label>
+        <div class="field">
+          <input id="name" name="name" type="text" placeholder="Name" required />
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="row">
+        <label for="phone">Phone Number</label>
+        <div class="field">
+          <input id="phone" name="phone" type="text" placeholder="Phone Number" required />
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="row">
+        <label for="address">Address</label>
+        <div class="field">
+          <textarea id="address" name="address" placeholder="Address" required></textarea>
+        </div>
+      </div>
+
+      <!-- Checkbox -->
+      <div class="row checkbox-row">
+        <label for="livedDog">Have you ever lived with a Dog before?</label>
+        <div class="field">
+          <!-- Value must be exactly: "Have you ever lived with a Dog before?" -->
+          <input id="livedDog" name="livedDog" type="checkbox" value="Have you ever lived with a Dog before?" />
+          <label for="livedDog" style="font-weight:normal; margin-left:8px;">Yes</label>
+        </div>
+      </div>
+
+      <!-- Multi-select for breeds (make it multi-select with at least 3 options) -->
+      <div class="row">
+        <label for="breeds">Please select your preferred breeds</label>
+        <div class="field">
+          <select id="breeds" name="breeds" multiple size="5" aria-label="Preferred breeds (multi-select)">
+            <option value="labrador">Labrador Retriever</option>
+            <option value="german-shepherd">German Shepherd</option>
+            <option value="golden-retriever">Golden Retriever</option>
+            <option value="bulldog">Bulldog</option>
+            <option value="poodle">Poodle</option>
+            <option value="beagle">Beagle</option>
+            <option value="rottweiler">Rottweiler</option>
+          </select>
+          <div style="font-size:12px;color:#666;margin-top:6px;">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="row actions" style="align-items:center;">
+        <div style="flex:1"></div>
+        <input id="submitBtn" type="submit" name="submit" value="Submit" />
+      </div>
+
+      <div id="message" style="margin-top:8px;"></div>
+    </form>
+
+    <div class="spec">
+      <strong>Form specification</strong>
+      <ul>
+        <li><strong>Name</strong> — text, placeholder: "Name"</li>
+        <li><strong>Phone Number</strong> — text, placeholder: "Phone Number"</li>
+        <li><strong>Address</strong> — text area, placeholder: "Address"</li>
+        <li><strong>Have you ever lived with a Dog before?</strong> — checkbox, value exactly: "Have you ever lived with a Dog before?"</li>
+        <li><strong>Please select your preferred breeds</strong> — multi-select (at least 3 options must be selected)</li>
+        <li><strong>Submit</strong> — submit input with value "Submit"</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // handle form submit, validate multi-select length >= 3
+    document.getElementById('adoptForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const msgEl = document.getElementById('message');
+      msgEl.textContent = '';
+      msgEl.className = '';
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const livedCheckbox = document.getElementById('livedDog');
+      const livedValue = livedCheckbox.checked ? livedCheckbox.value : '';
+      const breedsSelect = document.getElementById('breeds');
+
+      // collect selected breeds
+      const selectedBreeds = Array.from(breedsSelect.options)
+                                 .filter(opt => opt.selected)
+                                 .map(opt => opt.value);
+
+      // Basic validation
+      if (!name || !phone || !address) {
+        msgEl.textContent = 'Please fill Name, Phone Number and Address.';
+        msgEl.className = 'error';
+        return;
+      }
+
+      if (selectedBreeds.length < 3) {
+        msgEl.textContent = 'Please select at least 3 preferred breeds.';
+        msgEl.className = 'error';
+        return;
+      }
+
+      // If all good, show submission result (here we log to console and show a friendly message)
+      const submission = {
+        name,
+        phone,
+        address,
+        haveLivedWithDog: livedValue || 'No',
+        preferredBreeds: selectedBreeds
+      };
+
+      console.log('Form submission:', submission);
+
+      msgEl.style.color = '#0b7a2f';
+      msgEl.textContent = 'Application submitted successfully! Check console for the submitted object.';
+      msgEl.className = '';
+
+      // Example: If you wanted to actually submit to server, use fetch here.
+      // fetch('/submit', { method:'POST', body: JSON.stringify(submission), headers:{'Content-Type':'application/json'} })
+    });
+  </script>
 </body>
-
 </html>
